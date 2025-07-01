@@ -589,6 +589,7 @@ View(top_feedback_topics_1)
 
 
 #----------Formalise testing for afinn--------
+
 # Merge sentiment scores (AFINN) with original Feedback data to get Clinical label
 afinn_scores_with_clinical <- Feedback_afinn_sentiment_C_id %>%
   left_join(Feedback %>% mutate(ID = row_number()) %>% select(ID, Clinical.Y.N), by = "ID")
