@@ -586,3 +586,236 @@ top_feedback_topics_1 <- document_topics_1 %>%
   slice_max(gamma, n = 1)
 
 View(top_feedback_topics_1)
+
+
+#----------Formalise testing for afinn--------
+# Merge sentiment scores (AFINN) with original Feedback data to get Clinical label
+afinn_scores_with_clinical <- Feedback_afinn_sentiment_C_id %>%
+  left_join(Feedback %>% mutate(ID = row_number()) %>% select(ID, Clinical.Y.N), by = "ID")
+
+# View to confirm
+View(afinn_scores_with_clinical)
+
+
+str(afinn_scores_with_clinical)
+table(afinn_scores_with_clinical$Clinical.Y.N)
+
+
+#Checking normality for each clinical group
+shapiro.test(afinn_scores_with_clinical$score[afinn_scores_with_clinical$Clinical.Y.N == "Y"])
+shapiro.test(afinn_scores_with_clinical$score[afinn_scores_with_clinical$Clinical.Y.N == "N"])
+
+
+library(ggplot2)
+
+ggplot(afinn_scores_with_clinical, aes(x = Clinical.Y.N, y = score, fill = Clinical.Y.N)) +
+  geom_boxplot() +
+  labs(title = "Sentiment Score by Clinical Review Group (AFINN)",
+       x = "Clinical Review (Y/N)",
+       y = "AFINN Sentiment Score") +
+  theme_minimal()
+
+
+#QQ-plot
+ggplot(afinn_scores_with_clinical, aes(sample = score)) +
+  stat_qq() +
+  stat_qq_line() +
+  facet_wrap(~Clinical.Y.N) +
+  labs(title = "Q-Q Plot of AFINN Sentiment Score by Clinical Group",
+       x = "Theoretical Quantiles",
+       y = "Sample Quantiles") +
+  theme_minimal()
+
+
+#output : data:  afinn_scores_with_clinical$score[afinn_scores_with_clinical$Clinical.Y.N == "Y"]
+#W = 0.82045, p-value = 0.0006486 -------------------> For Y
+
+#data:  afinn_scores_with_clinical$score[afinn_scores_with_clinical$Clinical.Y.N == "N"]
+#W = 0.81543, p-value = 0.01502 -----------------------> For N
+
+
+#Since both groups fail the normality test (p < 0.05), you must use a non-parametric test:
+wilcox.test(score ~ Clinical.Y.N, data = afinn_scores_with_clinical)
+
+
+wilcox.test(score ~ Clinical.Y.N, data = afinn_scores_with_clinical, exact = FALSE)
+#There is no significant difference in AFINN sentiment scores between Clinical = Y and Clinical = N groups as p-value < 0.05
+#W = 119.5, p-value = 0.661
+
+#--------------------------For Bing----------------------------------------
+# Merge sentiment scores (AFINN) with original Feedback data to get Clinical label
+bing_scores_with_clinical <- Feedback_sentiment_data_C_id %>%
+  left_join(Feedback %>% mutate(ID = row_number()) %>% select(ID, Clinical.Y.N), by = "ID")
+
+# View to confirm
+View(bing_scores_with_clinical)
+
+
+str(bing_scores_with_clinical)
+table(bing_scores_with_clinical)
+
+
+#Checking normality for each clinical group
+shapiro.test(bing_scores_with_clinical$score[bing_scores_with_clinical$Clinical.Y.N == "Y"])
+#W = 0.57309, p-value = 9.018e-09
+
+shapiro.test(bing_scores_with_clinical$score[bing_scores_with_clinical$Clinical.Y.N == "N"])
+#W = 0.48429, p-value = 1.575e-06
+
+library(ggplot2)
+
+ggplot(bing_scores_with_clinical, aes(x = Clinical.Y.N, y = score, fill = Clinical.Y.N)) +
+  geom_boxplot() +
+  labs(title = "Sentiment Score by Clinical Review Group (Bing)",
+       x = "Clinical Review (Y/N)",
+       y = "Bing Sentiment Score") +
+  theme_minimal()
+
+
+#QQ-plot
+ggplot(bing_scores_with_clinical, aes(sample = score)) +
+  stat_qq() +
+  stat_qq_line() +
+  facet_wrap(~Clinical.Y.N) +
+  labs(title = "Q-Q Plot of Bing Sentiment Score by Clinical Group",
+       x = "Theoretical Quantiles",
+       y = "Sample Quantiles") +
+  theme_minimal()
+
+#Since both p-values are < 0.05, the sentiment scores for both groups do not follow a normal distribution.
+#using non-parametric test
+wilcox.test(score ~ Clinical.Y.N, data = bing_scores_with_clinical)
+
+wilcox.test(score ~ Clinical.Y.N, data = bing_scores_with_clinical, exact = FALSE)
+#data:  score by Clinical.Y.N
+#W = 243, p-value = 0.4354
+#does not differ significantly as p value is not <0.05
+
+
+#-----------------------------------NRC--------------------------------------
+# Merge sentiment scores (AFINN) with original Feedback data to get Clinical label
+nrc_scores_with_clinical <- Feedback_nrc_sentiment_C_id%>%
+  left_join(Feedback %>% mutate(ID = row_number()) %>% select(ID, Clinical.Y.N), by = "ID")
+
+# View to confirm
+View(nrc_scores_with_clinical)
+
+
+str(nrc_scores_with_clinical)
+table(nrc_scores_with_clinical)
+
+
+#Checking normality for each clinical group
+shapiro.test(nrc_scores_with_clinical$score[nrc_scores_with_clinical$Clinical.Y.N == "Y"])
+#W = 0.62249, p-value = 1.608e-06
+
+shapiro.test(nrc_scores_with_clinical$score[nrc_scores_with_clinical$Clinical.Y.N == "N"])
+#W = 0.64917, p-value = 0.0001052
+
+library(ggplot2)
+
+ggplot(nrc_scores_with_clinical, aes(x = Clinical.Y.N, y = score, fill = Clinical.Y.N)) +
+  geom_boxplot() +
+  labs(title = "Sentiment Score by Clinical Review Group (NRC)",
+       x = "Clinical Review (Y/N)",
+       y = "Bing Sentiment Score") +
+  theme_minimal()
+
+
+#QQ-plot
+ggplot(nrc_scores_with_clinical, aes(sample = score)) +
+  stat_qq() +
+  stat_qq_line() +
+  facet_wrap(~Clinical.Y.N) +
+  labs(title = "Q-Q Plot of NRC Sentiment Score by Clinical Group",
+       x = "Theoretical Quantiles",
+       y = "Sample Quantiles") +
+  theme_minimal()
+
+#Since both groups fail the normality test (p < 0.05), you must use a non-parametric test:
+wilcox.test(score ~ Clinical.Y.N, data = nrc_scores_with_clinical, exact = FALSE)
+#data:  score by Clinical.Y.N
+#W = 134.5, p-value = 0.7461
+
+
+
+
+
+#----------------------------Modelling-------------------------------
+library(tidymodels)
+library(textrecipes)
+library(tidytext)
+
+#As factor
+feedback_modelling <- Feedback %>%
+  mutate(Clinical.Y.N = as.factor(Clinical.Y.N))
+
+View(feedback_modelling)
+
+
+#train/test split
+set.seed(123)
+feedback_split <- initial_split(feedback_modelling, strata = Clinical.Y.N)
+train_data <- training(feedback_split)
+test_data <- testing(feedback_split)
+
+View(train_data)
+View(test_data)
+
+#This converts text into tokens, removes stopwords, applies TF-IDF:
+
+feedback_recipe <- recipe(Clinical.Y.N ~ Feedback, data = train_data) %>%
+  step_tokenize(Feedback) %>%
+  step_stopwords(Feedback) %>%
+  step_tokenfilter(Feedback, max_tokens = 400) %>%
+  step_tfidf(Feedback)
+View(feedback_recipe)
+
+
+#using logistic regression
+log_model <- logistic_reg(penalty = tune(), mixture = 1) %>%
+  set_engine("glmnet") %>%
+  set_mode("classification")
+View(log_model)
+#workflow
+feedback_workflow <- workflow() %>%
+  add_model(log_model) %>%
+  add_recipe(feedback_recipe)
+View(feedback_workflow)
+
+
+#cross validation + tuning
+set.seed(234)
+feedback_folds <- vfold_cv(train_data, v = 5, strata = Clinical.Y.N)
+
+View(feedback_folds)
+
+install.packages("glmnet")
+library(glmnet)
+library(tidymodels)
+
+feedback_tune <- tune_grid(
+  feedback_workflow,
+  resamples = feedback_folds,
+  grid = 10,
+  metrics = metric_set(accuracy, roc_auc)
+)
+
+View(feedback_tune)
+
+
+#Select the best model
+
+best_model <- select_best(feedback_tune, metric = "roc_auc")
+
+final_workflow <- finalize_workflow(feedback_workflow, best_model)
+
+
+#final model evaluation
+
+final_fit <- last_fit(final_workflow, feedback_split)
+
+collect_metrics(final_fit)
+collect_predictions(final_fit) %>%
+  conf_mat(truth = Clinical.Y.N, estimate = .pred_class)
+
