@@ -1,0 +1,91 @@
+
+---
+title: "Initial Data Cleaning"
+author: "Manasi Patil"
+date: "2025-07-22"
+output:
+  html_document:
+    code_folding: show
+    code_download: yes
+    highlight: pygments
+editor_options:
+  chunk_output_type: inline
+---
+
+## Setup
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.align = "center",
+  out.width = "70%"
+)
+```
+
+```{r setup}
+
+# load dependencies
+library(ggraph)
+library(glmnet)
+library(here)
+library(igraph)
+library(textrecipes)
+library(tidymodels)
+library(tidytext)
+library(tidyverse)
+library(tm)
+library(topicmodels)
+library(wordcloud)
+
+```
+
+```{r load data}
+
+raw_feedback <- read_csv(file = here("data", "updated_feedback.csv"))
+
+View(raw_feedback)
+
+```
+
+```{r }
+# Show structure
+glimpse(raw_feedback)
+
+# Count missing values
+colSums(is.na(raw_feedback))
+
+```
+
+```{r}
+cleaned_feedback <- raw_feedback %>%
+  mutate(Feedback = str_to_lower(Feedback)) %>%
+  mutate(Feedback = str_replace_all(Feedback, "[^[:alnum:]]", " ")) %>%
+  mutate(Feedback = str_squish(Feedback))
+  view(cleaned_feedback)
+  
+```
+
+```{r}
+write_csv(cleaned_feedback, here::here("output", "cleaned_feedback.csv"))
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
