@@ -16,8 +16,7 @@ This project analyzes NHS app feedback and predicts if a patient needs clinical 
   -  08_statistical_testing.R: Tests sentiment score differences by Clinical.Y.N.
 
 ## Setup
-1. Put `updated_feedback.csv` in `data/`.
-2. Install R packages in RStudio:
+1. Install R packages in RStudio:
    ```R
    install.packages(c("dplyr", "ggplot2", "here", "janitor", "stringr", "tidytext", "tidyr", "wordcloud", "glmnet"))
    
